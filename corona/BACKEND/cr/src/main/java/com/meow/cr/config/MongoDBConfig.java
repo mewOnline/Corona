@@ -28,10 +28,12 @@ public class MongoDBConfig {
 
 			@Override
 			public void run(String... args) throws Exception {
+
 				rep.deleteAll();
 				rep.save(new CoronaCase("ANKARA", LocalDate.now(), 1, 5, 10));
 				rep.save(new CoronaCase("DENIZLI", LocalDate.now().minusDays(1), 1, 5, 10));
 				rep.save(new CoronaCase("ISTANBUL", LocalDate.now().minusDays(2), 1, 565, 346));
+
 				CityRep.deleteAll();
 				CityRep.save(new City("ADANA", 1));
 				CityRep.save(new City("ADIYAMAN", 2));
