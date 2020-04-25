@@ -92,7 +92,7 @@ public class CoronaController {
 	}
 
 	@PostMapping(value = "/add", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponsePayload ekle(@RequestBody CoronaCaseModel model) {
+	public ResponsePayload add(@RequestBody CoronaCaseModel model) {
 
 		try {
 			boolean add = CornServ.add(model);

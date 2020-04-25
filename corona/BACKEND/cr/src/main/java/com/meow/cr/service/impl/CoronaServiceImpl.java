@@ -22,7 +22,7 @@ import com.meow.cr.document.CoronaCase;
 import com.meow.cr.model.CoronaCaseModel;
 import com.meow.cr.model.CoronaLineModel;
 import com.meow.cr.model.DataPoint;
-import com.meow.cr.model.INFECTED;
+import com.meow.cr.model.Infected;
 import com.meow.cr.repository.CityRepository;
 import com.meow.cr.repository.CoronaRepository;
 import com.meow.cr.service.CoronaService;
@@ -36,6 +36,7 @@ public class CoronaServiceImpl implements CoronaService {
 	private CityRepository cityRep;
 
 	@Override
+	// Tüm vaka listesi
 	public ArrayList<CoronaCaseModel> getAll() {
 		ArrayList<CoronaCaseModel> cases = new ArrayList<>();
 		List<CoronaCase> findAll = corRep.findAll();
@@ -48,6 +49,7 @@ public class CoronaServiceImpl implements CoronaService {
 	}
 
 	@Override
+	// Corana vaka ekleme islemi
 	public boolean add(CoronaCaseModel model) {
 
 		// Örnek1 “ 20.04.2020 tarihinde Ankara da Korona virüs salgınında yapılan
@@ -72,20 +74,20 @@ public class CoronaServiceImpl implements CoronaService {
 			}
 		}
 
-		// city
+		// city alanın setlenmesi
 		String cityName = new String();
 		List<City> findAll = cityRep.findAll();
 		for (City city : findAll) {
 			if (entry.contains(city.getName().toUpperCase())) {
 				cityName = city.getName();
-				city.setInfected(INFECTED.YES.getValue());
+				city.setInfected(Infected.YES.getValue());
 				cityRep.save(city);
 				break;
 			}
 		}
 		coronaCase.setCity(cityName);
 
-		// death
+		// death alanın setlenmesi
 		Integer death = 0;
 		String[] entryDeath = entry.split("VEFAT");
 		String dirtDeath = entryDeath[0];
@@ -99,7 +101,7 @@ public class CoronaServiceImpl implements CoronaService {
 		}
 		coronaCase.setDeath(death);
 
-		// Recovered
+		// Recovered alanının setlenmesi
 		Integer rcover = 0;
 		String[] entryrCover = entry.split("IYILE");
 		String dirtyrCover = entryrCover[0];
@@ -113,7 +115,7 @@ public class CoronaServiceImpl implements CoronaService {
 		}
 		coronaCase.setRecovered(rcover);
 
-		// Confirmed
+		// Confirmed alanının setlenmesi
 		Integer confirm = 0;
 		String[] entryConfirm = entry.split("YENI VAKA");
 		String dirtyConfirm = entryConfirm[0];
@@ -127,15 +129,17 @@ public class CoronaServiceImpl implements CoronaService {
 		}
 		coronaCase.setConfirmed(confirm);
 
+		// Onceden girilmiş aynı tarihte o ile ait kayıt varsa yanlış kabul edilip
+		// silinir.
 		List<CoronaCase> findByCityAndDate = corRep.findByCityAndDate(coronaCase.getCity(), coronaCase.getDate());
 		if (!findByCityAndDate.isEmpty()) {
 			corRep.deleteAll(findByCityAndDate);
 		}
-		
-		if(coronaCase.getDate()==null||coronaCase.getCity().trim().equals("")) {
+		// kayıt olacak vakada il ve tarih setlenemediyse insert edilnmez.
+		if (coronaCase.getDate() == null || coronaCase.getCity().trim().equals("")) {
 			return false;
 		}
-		
+
 		corRep.save(coronaCase);
 
 		return true;
@@ -143,6 +147,7 @@ public class CoronaServiceImpl implements CoronaService {
 	}
 
 	@Override
+	// İle ait veriler listelenir.
 	public ArrayList<CoronaLineModel> findCaseOfCity(Integer plaka) {
 
 		Optional<City> optcity = cityRep.findById(plaka);
@@ -157,6 +162,7 @@ public class CoronaServiceImpl implements CoronaService {
 		return lines;
 	}
 
+	// frontend in kabul edeceği şekilde veri modeli oluşturulur.
 	private ArrayList<CoronaLineModel> caseToLineModel(List<CoronaCase> findByCity) {
 		CoronaLineModel death = new CoronaLineModel("OLUM");
 		CoronaLineModel confirmed = new CoronaLineModel("VAKA");
@@ -171,12 +177,11 @@ public class CoronaServiceImpl implements CoronaService {
 			confirmed_dataPoints.add(new DataPoint(coronaCase.getConfirmed(), coronaCase.getDate().toString()));
 			recovered_dataPoints.add(new DataPoint(coronaCase.getRecovered(), coronaCase.getDate().toString()));
 		}
-		
+
 		death_dataPoints.sort(Comparator.comparing(shop -> shop.getLabel()));
 		confirmed_dataPoints.sort(Comparator.comparing(shop -> shop.getLabel()));
 		recovered_dataPoints.sort(Comparator.comparing(shop -> shop.getLabel()));
 
-		
 		death.setDataPoints(death_dataPoints);
 		confirmed.setDataPoints(confirmed_dataPoints);
 		recovered.setDataPoints(recovered_dataPoints);
@@ -188,6 +193,8 @@ public class CoronaServiceImpl implements CoronaService {
 	}
 
 	@Override
+	// Türkiye için tum vakalar çekilir ve tarihe göre gruplanıp toplam vaka,ölüm ve
+	// iyileşme hesaplanır.
 	public ArrayList<CoronaLineModel> findCaseOfTurkey() {
 		List<CoronaCase> allcases = corRep.findAllByOrderByDate();
 		ArrayList<CoronaCase> cases = new ArrayList<>();
@@ -207,7 +214,6 @@ public class CoronaServiceImpl implements CoronaService {
 		}
 
 		ArrayList<CoronaLineModel> lines = caseToLineModel(cases);
-
 
 		return lines;
 	}

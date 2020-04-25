@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 import com.meow.cr.document.City;
 import com.meow.cr.document.CoronaCase;
-import com.meow.cr.model.INFECTED;
+import com.meow.cr.model.Infected;
 
 	public interface CityRepository extends MongoRepository<City, Integer>{
 

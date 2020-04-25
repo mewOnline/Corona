@@ -3,7 +3,7 @@ package com.meow.cr.document;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import com.meow.cr.model.INFECTED;
+import com.meow.cr.model.Infected;
 @Document
 
 public class City {
@@ -16,7 +16,7 @@ public class City {
 		super();
 		this.plaka = plaka;
 		this.name = name;
-		this.infected=INFECTED.NO.getValue();
+		this.infected=Infected.NO.getValue();
 	}
 	public City( String name,Integer plaka,int infected) {
 		super();
